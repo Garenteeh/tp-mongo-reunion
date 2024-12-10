@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+      - mongodb_data:/data/db
+    ports:
+      - "27017:27017"
+
+  neo4j:
+    image: neo4j:latest
+    container_name: neo4j
+    environment:
+      NEO4J_AUTH: neo4j/password
+    volumes:
+      - neo4j_data:/data
+    ports:
+      - "7687:7687"  
+      - "7474:7474" 
+    restart: always
+
+#  php_step1:
+#    build:
+#      context: ./step1
+#    container_name: php_step1
+#    environment:
+#      - MONGO_URI=mongodb://root:root@mongodb:27017/reunion
+#    depends_on:
+#      - mongodb
+#    ports:
+#      - "8001:80"
+#    restart: always
+#
+  python_step2:
+    build:
+      context: ./step2
+    container_name: python_step2
+    environment:
+      - MONGO_URI=mongodb://root:root@mongodb:27017/reunion
+    depends_on:
+      - mongodb
+    ports:
+      - "5000:5000"
+    restart: always
+
+  java_step3:
+    build:
+      context: ./step3
+    container_name: java_step3
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongodb:27017/reunion
+    depends_on:
+      - mongodb
+    ports:
+      - "8080:8080"
+    restart: always
+
+ # php_step4:
+ #   build:
+ #     context: ./step4
+ #   container_name: php_step4
+ #   environment:
+ #     - MONGO_URI=mongodb://root:root@mongodb:27017/reunion
+ #   depends_on:
+ #     - mongodb
+ #   ports:
+ #     - "8002:80"
+ #   restart: always
+
+volumes:
+  mongodb_data:
+  neo4j_data:
